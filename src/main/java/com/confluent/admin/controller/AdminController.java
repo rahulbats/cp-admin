@@ -39,7 +39,14 @@ public class AdminController {
     @RequestMapping(value = "/topics", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<String> createTopic(@RequestBody List<Topic> topics) throws Exception{
 
-       return topicService.manageTopic(topics);
+       return topicService.manageTopic(topics,false);
+
+    }
+
+    @RequestMapping(value = "/topics", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<String> deleteTopics(@RequestBody List<String> topics) throws Exception{
+
+        return topicService.deleteTopic(topics);
 
     }
 

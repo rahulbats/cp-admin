@@ -32,6 +32,8 @@ public class KafkaEnvConfiguration implements InitializingBean {
     ACLService aclService;
 
 
+    @Value("${delete.enable}")
+    private String deleteString;
 
 
     @Value("${perpetual}")
@@ -41,7 +43,7 @@ public class KafkaEnvConfiguration implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         //Collection<TopicListing> topicsFromKafka = topicService.getTopics();
         //Set<String> topicNamesFromKafka= topicService.getTopicNames();
-        topicService.manageTopic(topics);
+        topicService.manageTopic(topics, new Boolean(deleteString));
         aclService.manageACL(acls);
         if(!new Boolean(perpetualString))
             System.exit(0);

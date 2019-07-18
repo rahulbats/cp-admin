@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -22,8 +19,6 @@ public class TopicService {
     private AdminClient adminClient;
 
 
-    @Value("${delete.enable}")
-    private String deleteString;
 
     public Set<String> getTopicNames() throws InterruptedException, ExecutionException {
         ListTopicsOptions listTopicsOptions = new ListTopicsOptions();
@@ -31,7 +26,7 @@ public class TopicService {
         return adminClient.listTopics(listTopicsOptions).names().get();
     }
 
-    public List<TopicDescription> getTopicsWithPartitions() throws InterruptedException, ExecutionException {
+    private List<TopicDescription> getTopicsWithPartitions() throws InterruptedException, ExecutionException {
         return adminClient.describeTopics(getTopicNames()).values().values().stream().map(existingTopic->{
             try {
                 return existingTopic.get();
@@ -48,7 +43,7 @@ public class TopicService {
                 .collect(Collectors.toList());
     }
 
-    public Map<String,Config> getTopicsWithConfigs() throws InterruptedException, ExecutionException {
+    private Map<String,Config> getTopicsWithConfigs() throws InterruptedException, ExecutionException {
         Map<String,Config> configs = new HashMap<>();
         adminClient.describeConfigs(getTopicsWithPartitions().stream().map(topic->new ConfigResource(ConfigResource.Type.TOPIC, topic.name())).collect(Collectors.toList())).values().entrySet().stream()
                 .forEach(existingTopic->{
@@ -65,9 +60,20 @@ public class TopicService {
         return configs;
     }
 
+    public List<String> deleteTopic(@RequestBody List<String> deleteTopics) throws Exception {
+        DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(deleteTopics);
+        while (!deleteTopicsResult.all().isDone())
+            Thread.sleep(300);
 
+        List<String> exceptionDeleteTopics = deleteTopicsResult.values().entrySet().stream().filter(keyValue -> {
+            return keyValue.getValue().isCompletedExceptionally();
+        }).map(exceptionTopic->{
+            return exceptionTopic.toString();
+        }).collect(Collectors.toList());
+        return exceptionDeleteTopics;
+    }
 
-    public List<String> manageTopic(@RequestBody List<Topic> topics) throws Exception{
+    public List<String> manageTopic(@RequestBody List<Topic> topics, boolean deleteEnabled) throws Exception{
 
         List<TopicDescription> existingTopicDescriptions = getTopicsWithPartitions();
 
@@ -133,13 +139,14 @@ public class TopicService {
             //Collection<AlterConfigOp> = new
             List<AlterConfigOp> configOps = filteredConfigs.entrySet().stream().map(entry->{
                 ConfigEntry configEntry = new ConfigEntry(entry.getKey(), entry.getValue());
-                AlterConfigOp alterConfigOp = new AlterConfigOp(configEntry, AlterConfigOp.OpType.SET);
+                AlterConfigOp alterConfigOp = new AlterConfigOp(configEntry, AlterConfigOp.OpType.DELETE);
                 return alterConfigOp;
             }).collect(Collectors.toList());
             alterConfigs.put(new ConfigResource(ConfigResource.Type.TOPIC, topic.getName()), configOps);
         });
 
         AlterConfigsResult alterConfigsResult = adminClient.incrementalAlterConfigs(alterConfigs);
+        //adminClient.alterConfigs(alterConfigs);
         while (!alterConfigsResult.all().isDone())
             Thread.sleep(300);
         List<String> exceptionConfigTopics = alterConfigsResult.values().entrySet().stream().filter(keyValue -> {
@@ -150,7 +157,7 @@ public class TopicService {
         exceptionTopics.addAll(exceptionConfigTopics);*/
 
 
-        if(new Boolean(deleteString)) {
+        if(deleteEnabled) {
             List<String> deleteTopics = existingTopicNamesPartitions.keySet().stream().filter(existingTopicName->!topicNames.contains(existingTopicName)).collect(Collectors.toList());
             DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(deleteTopics);
             while (!deleteTopicsResult.all().isDone())
