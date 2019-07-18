@@ -16,7 +16,7 @@ public class Topic {
     @Getter @Setter private Map<String, String> configs;
     Topic() {}
 
-    Topic(String name, int numPartitions, short replicationFactor, Map<String, String> configs) {
+    public Topic(String name, int numPartitions, short replicationFactor, Map<String, String> configs) {
         this.name =name;
         this.numPartitions = numPartitions;
         this.replicationFactor = replicationFactor;

@@ -1,21 +1,15 @@
 package com.confluent.admin.service;
 
 import com.confluent.admin.model.Acl;
-import com.confluent.admin.model.Topic;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateAclsResult;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
-import org.apache.kafka.common.acl.AclOperation;
-import org.apache.kafka.common.acl.AclPermissionType;
-import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePattern;
-import org.apache.kafka.common.resource.ResourceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,7 +19,7 @@ public class ACLService {
     @Autowired
     private AdminClient adminClient;
 
-    public String createACL(@RequestBody List<Acl> acls) throws Exception {
+    public String manageACL(@RequestBody List<Acl> acls) throws Exception {
 
        List<AclBinding> bindings = acls.stream().map(acl->{
             AccessControlEntry aclEntry = new AccessControlEntry(acl.getPrincipal(),"*",acl.getOperation(), acl.getPermission());

@@ -37,16 +37,16 @@ public class AdminController {
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String createTopic(@RequestBody List<Topic> topics) throws Exception{
+    public List<String> createTopic(@RequestBody List<Topic> topics) throws Exception{
 
-       return topicService.createTopic(topics);
+       return topicService.manageTopic(topics);
 
     }
 
     @RequestMapping(value = "/acls", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public String createACL(@RequestBody List<Acl> acls) throws Exception{
 
-        return aclService.createACL(acls);
+        return aclService.manageACL(acls);
 
     }
 }

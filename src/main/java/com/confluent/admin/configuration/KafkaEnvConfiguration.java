@@ -41,8 +41,8 @@ public class KafkaEnvConfiguration implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         //Collection<TopicListing> topicsFromKafka = topicService.getTopics();
         //Set<String> topicNamesFromKafka= topicService.getTopicNames();
-        topicService.createTopic(topics);
-        aclService.createACL(acls);
+        topicService.manageTopic(topics);
+        aclService.manageACL(acls);
         if(!new Boolean(perpetualString))
             System.exit(0);
     }

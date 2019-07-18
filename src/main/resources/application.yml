@@ -4,17 +4,18 @@ sasl:
   jaas:
     config: org.apache.kafka.common.security.plain.PlainLoginModule required username="USER-NAME" password="USER-PASSWORD";
   mechanism: PLAIN
-perpetual: true
+perpetual: false
+delete.enable: true
 kafkaenv:
   topics:
     -
-     name: test
-     numPartitions: 3
+     name: testing-1234
+     numPartitions: 5
      replicationFactor: 3
      configs:
         cleanup.policy: delete
         delete.retention.ms: 86400000
-        max.message.bytes: 2097164
+        max.message.bytes: 2097169
         retention.bytes: -1
         retention.ms: 604800000
   acls:
@@ -23,6 +24,6 @@ kafkaenv:
      permission: ALLOW
      operation: WRITE
      resourceType: TOPIC
-     resourceName: rahul-topic
+     resourceName: testing-123
      patternType: LITERAL
 
