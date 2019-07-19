@@ -10,7 +10,7 @@ kafkaenv:
   topics:
     -
      name: testing
-     numPartitions: 5
+     numPartitions: 10
      replicationFactor: 3
      configs:
         cleanup.policy: delete
@@ -24,6 +24,6 @@ kafkaenv:
      permission: ALLOW
      operation: WRITE
      resourceType: TOPIC
-     resourceName: testing-123
+     resourceName: testing
      patternType: LITERAL
 
