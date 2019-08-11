@@ -14,7 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Configuration
@@ -46,7 +49,7 @@ public class KafkaEnvConfiguration implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         //Collection<TopicListing> topicsFromKafka = topicService.getTopics();
         //Set<String> topicNamesFromKafka= topicService.getTopicNames();
-        topicService.manageTopic(topics, new Boolean(deleteString), basePrefix);
+        topicService.manageTopic(topics.stream().filter(topic -> StringUtils.isEmpty(basePrefix)?true:topic.getName().startsWith(basePrefix)).collect(Collectors.toList()), new Boolean(deleteString), basePrefix);
         aclService.manageACL(acls);
         if(!new Boolean(perpetualString))
             System.exit(0);
