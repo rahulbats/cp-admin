@@ -10,10 +10,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.concurrent.Future;
@@ -30,16 +27,16 @@ public class AdminController {
     ACLService aclService;
 
     @RequestMapping(value = "/topics",  produces = "application/json")
-    public Set<String> getTopics() throws Exception{
+    public Set<String> getTopics(@RequestAttribute("basePrefix") String basePrefix) throws Exception{
 
-        return topicService.getTopicNames();
+        return topicService.getTopicNames(basePrefix);
 
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<String> createTopic(@RequestBody List<Topic> topics) throws Exception{
+    public List<String> createTopic(@RequestBody List<Topic> topics, @RequestAttribute("basePrefix") String basePrefix) throws Exception{
 
-       return topicService.manageTopic(topics,false);
+       return topicService.manageTopic(topics,false, basePrefix);
 
     }
 

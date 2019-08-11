@@ -1,16 +1,28 @@
 server.port: 8085
 spring.kafka.bootstrap-servers: BOOTSRAP-URLS
+security:
+  protocol: SASL_SSL
 sasl:
   jaas:
     config: org.apache.kafka.common.security.plain.PlainLoginModule required username="USER-NAME" password="USER-PASSWORD";
   mechanism: PLAIN
+ssl:
+  truststore:
+    location:
+    password:
+  keystore:
+    location:
+    password:
+  key:
+    password:
 perpetual: false
 delete.enable: true
+base.prefix: com.confluent.
 kafkaenv:
   topics:
     -
-     name: testing
-     numPartitions: 5
+     name: com.confluent.test
+     numPartitions: 10
      replicationFactor: 3
      configs:
         cleanup.policy: delete
@@ -24,6 +36,6 @@ kafkaenv:
      permission: ALLOW
      operation: WRITE
      resourceType: TOPIC
-     resourceName: testing-123
+     resourceName: testing
      patternType: LITERAL
 

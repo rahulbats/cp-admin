@@ -7,6 +7,7 @@ import org.apache.kafka.common.config.ConfigResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
@@ -20,14 +21,14 @@ public class TopicService {
 
 
 
-    public Set<String> getTopicNames() throws InterruptedException, ExecutionException {
+    public Set<String> getTopicNames(String basePrefix) throws InterruptedException, ExecutionException {
         ListTopicsOptions listTopicsOptions = new ListTopicsOptions();
         listTopicsOptions.listInternal(true);
-        return adminClient.listTopics(listTopicsOptions).names().get();
+        return adminClient.listTopics(listTopicsOptions).names().get().stream().filter(name-> StringUtils.isEmpty(basePrefix)?true:name.startsWith(basePrefix)).collect(Collectors.toSet());
     }
 
-    private List<TopicDescription> getTopicsWithPartitions() throws InterruptedException, ExecutionException {
-        return adminClient.describeTopics(getTopicNames()).values().values().stream().map(existingTopic->{
+    private List<TopicDescription> getTopicsWithPartitions(String basePrefix) throws InterruptedException, ExecutionException {
+        return adminClient.describeTopics(getTopicNames(basePrefix)).values().values().stream().map(existingTopic->{
             try {
                 return existingTopic.get();
             } catch (InterruptedException e) {
@@ -43,9 +44,9 @@ public class TopicService {
                 .collect(Collectors.toList());
     }
 
-    private Map<String,Config> getTopicsWithConfigs() throws InterruptedException, ExecutionException {
+    private Map<String,Config> getTopicsWithConfigs(String basePrefix) throws InterruptedException, ExecutionException {
         Map<String,Config> configs = new HashMap<>();
-        adminClient.describeConfigs(getTopicsWithPartitions().stream().map(topic->new ConfigResource(ConfigResource.Type.TOPIC, topic.name())).collect(Collectors.toList())).values().entrySet().stream()
+        adminClient.describeConfigs(getTopicsWithPartitions(basePrefix).stream().map(topic->new ConfigResource(ConfigResource.Type.TOPIC, topic.name())).collect(Collectors.toList())).values().entrySet().stream()
                 .forEach(existingTopic->{
             try {
                 configs.put(existingTopic.getKey().name(),existingTopic.getValue().get());
@@ -73,9 +74,9 @@ public class TopicService {
         return exceptionDeleteTopics;
     }
 
-    public List<String> manageTopic(@RequestBody List<Topic> topics, boolean deleteEnabled) throws Exception{
+    public List<String> manageTopic(@RequestBody List<Topic> topics, boolean deleteEnabled, String basePrefix) throws Exception{
 
-        List<TopicDescription> existingTopicDescriptions = getTopicsWithPartitions();
+        List<TopicDescription> existingTopicDescriptions = getTopicsWithPartitions(basePrefix);
 
         Map<String, List<TopicPartitionInfo>> existingTopicNamesPartitions =
                 existingTopicDescriptions.stream().collect(Collectors.toMap(TopicDescription::name, TopicDescription::partitions));

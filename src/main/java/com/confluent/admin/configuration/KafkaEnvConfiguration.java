@@ -39,11 +39,14 @@ public class KafkaEnvConfiguration implements InitializingBean {
     @Value("${perpetual}")
     private String perpetualString;
 
+    @Value("${base.prefix}")
+    private String basePrefix;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         //Collection<TopicListing> topicsFromKafka = topicService.getTopics();
         //Set<String> topicNamesFromKafka= topicService.getTopicNames();
-        topicService.manageTopic(topics, new Boolean(deleteString));
+        topicService.manageTopic(topics, new Boolean(deleteString), basePrefix);
         aclService.manageACL(acls);
         if(!new Boolean(perpetualString))
             System.exit(0);

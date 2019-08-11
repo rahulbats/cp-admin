@@ -3,6 +3,7 @@ package com.confluent.admin.service;
 import com.confluent.admin.model.Acl;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateAclsResult;
+import org.apache.kafka.clients.admin.DescribeAclsResult;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.resource.ResourcePattern;
@@ -19,7 +20,9 @@ public class ACLService {
     @Autowired
     private AdminClient adminClient;
 
+
     public String manageACL(@RequestBody List<Acl> acls) throws Exception {
+
 
        List<AclBinding> bindings = acls.stream().map(acl->{
             AccessControlEntry aclEntry = new AccessControlEntry(acl.getPrincipal(),"*",acl.getOperation(), acl.getPermission());
